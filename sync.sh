@@ -4,11 +4,11 @@
 # the installation and usage of laradock with docker-sync.
 
 # Make sure that the DOCKER_SYNC_STRATEGY is set in the .env
-# DOCKER_SYNC_STRATEGY=native_osx # osx
+DOCKER_SYNC_STRATEGY=native_osx
 # DOCKER_SYNC_STRATEGY=unison # windows
 
 # To run, make sure to add permissions to this file:
-# chmod 755 sync.sh
+chmod 755 sync.sh
 
 # USAGE EXAMPLE:
 # Install docker-sync: ./sync.sh install
@@ -68,8 +68,11 @@ elif [ "$1" == "down" ]; then
     print_style "Stopping Docker Sync\n" "info"
     docker-sync stop
 
-elif [ "$1" == "bash" ]; then
-    docker-compose exec --user=laradock workspace bash
+elif [ "$1" == "ssh" ]; then
+    docker-compose exec --user=laradock workspace zsh
+
+elif [ "$1" == "root-ssh" ]; then
+    docker-compose exec --user=root workspace bash
 
 elif [ "$1" == "install" ]; then
     print_style "Installing docker-sync\n" "info"

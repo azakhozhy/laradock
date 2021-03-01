@@ -1184,11 +1184,11 @@ ARG INSTALL_SUPERVISOR=false
 
 RUN if [ ${INSTALL_SUPERVISOR} = true ]; then \
     if [ ${INSTALL_PYTHON} = true ]; then \
-    python -m pip install --upgrade supervisor && \
-    echo_supervisord_conf > /etc/supervisord.conf && \
-    sed -i 's/\;\[include\]/\[include\]/g' /etc/supervisord.conf && \
-    sed -i 's/\;files\s.*/files = supervisord.d\/*.conf/g' /etc/supervisord.conf \
-  ;fi \
+        python -m pip install --upgrade supervisor && \
+        echo_supervisord_conf > /etc/supervisord.conf && \
+        sed -i 's/\;\[include\]/\[include\]/g' /etc/supervisord.conf && \
+        sed -i 's/\;files\s.*/files = supervisord.d\/*.conf/g' /etc/supervisord.conf \
+    ;fi \
 ;fi
 
 USER laradock
@@ -1202,7 +1202,11 @@ USER root
 ARG INSTALL_IMAGEMAGICK=false
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
-    apt-get install -y imagemagick php-imagick \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ]; then \
+        apt-get install -y libmagickwand-dev imagemagick && \
+            pecl install imagick && \
+            echo extension=imagick.so >> /etc/php/7.4/cli/php.ini \
+    ;fi \
 ;fi
 
 ###########################################################################
@@ -1613,6 +1617,10 @@ USER root
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm /var/log/lastlog /var/log/faillog
+
+#COPY /etc/resolv.conf /etc/resolv.conf.override
+#ADD /etc/resolv.conf /etc/resolv.conf.override
+#CMD cp /etc/resolv.conf.override /etc/resolv.conf
 
 # Set default work directory
 WORKDIR /var/www
